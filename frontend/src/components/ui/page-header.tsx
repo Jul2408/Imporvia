@@ -1,0 +1,23 @@
+import * as React from "react"
+
+interface PageHeaderProps {
+  title: string
+  description?: string
+  actions?: React.ReactNode
+}
+
+export function PageHeader({ title, description, actions }: PageHeaderProps) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-text-primary">{title}</h1>
+        {description && (
+          <p className="mt-1 text-sm text-text-secondary">{description}</p>
+        )}
+      </div>
+      {actions && (
+        <div className="flex items-center gap-3 shrink-0">{actions}</div>
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,163 @@
+{
+  "frontend": {
+    "api_calls": [
+      {
+        "file": "\\lib\\api.ts",
+        "line": 45,
+        "call": "${API_BASE_URL}/auth/refresh/"
+      }
+    ],
+    "mocks": [
+      {
+        "file": "\\app\\admin\\rapports\\page.tsx",
+        "line": 39,
+        "match": "Fake",
+        "content": "{/* Fake Chart representation */}"
+      },
+      {
+        "file": "\\app\\fonctionnalites\\page.tsx",
+        "line": 184,
+        "match": "mock",
+        "content": "{/* Visual mockup */}"
+      }
+    ]
+  },
+  "backend": {
+    "endpoints": [
+      {
+        "file": "\\apps\\accounts\\urls.py",
+        "path": "auth/register/"
+      },
+      {
+        "file": "\\apps\\accounts\\urls.py",
+        "path": "auth/login/"
+      },
+      {
+        "file": "\\apps\\accounts\\urls.py",
+        "path": "auth/refresh/"
+      },
+      {
+        "file": "\\apps\\accounts\\urls.py",
+        "path": "auth/logout/"
+      },
+      {
+        "file": "\\apps\\accounts\\urls.py",
+        "path": "users/me/"
+      },
+      {
+        "file": "\\apps\\admin_panel\\urls.py",
+        "path": ""
+      },
+      {
+        "file": "\\apps\\billing\\urls.py",
+        "path": "payments/mock-checkout/"
+      },
+      {
+        "file": "\\apps\\companies\\urls.py",
+        "path": ""
+      },
+      {
+        "file": "\\apps\\companies\\urls.py",
+        "path": "companies/<uuid:company_pk>/members/"
+      },
+      {
+        "file": "\\apps\\core\\urls.py",
+        "path": "notifications/"
+      },
+      {
+        "file": "\\apps\\core\\urls.py",
+        "path": "notifications/<uuid:pk>/"
+      },
+      {
+        "file": "\\apps\\core\\urls.py",
+        "path": "audit-logs/"
+      },
+      {
+        "file": "\\apps\\customs_engine\\urls.py",
+        "path": ""
+      },
+      {
+        "file": "\\apps\\simulations\\urls.py",
+        "path": ""
+      },
+      {
+        "file": "\\config\\urls.py",
+        "path": "django-admin/"
+      },
+      {
+        "file": "\\config\\urls.py",
+        "path": "api/v1/"
+      },
+      {
+        "file": "\\config\\urls.py",
+        "path": "api/v1/"
+      },
+      {
+        "file": "\\config\\urls.py",
+        "path": "api/v1/customs/"
+      },
+      {
+        "file": "\\config\\urls.py",
+        "path": "api/v1/"
+      },
+      {
+        "file": "\\config\\urls.py",
+        "path": "api/v1/billing/"
+      },
+      {
+        "file": "\\config\\urls.py",
+        "path": "api/v1/"
+      },
+      {
+        "file": "\\config\\urls.py",
+        "path": "api/v1/admin/"
+      }
+    ],
+    "models": [
+      {
+        "file": "\\apps\\companies\\models.py",
+        "model": "Company"
+      },
+      {
+        "file": "\\apps\\companies\\models.py",
+        "model": "Membership"
+      },
+      {
+        "file": "\\apps\\core\\models.py",
+        "model": "Notification"
+      },
+      {
+        "file": "\\apps\\core\\models.py",
+        "model": "AuditLog"
+      },
+      {
+        "file": "\\apps\\customs_engine\\models.py",
+        "model": "HSCode"
+      },
+      {
+        "file": "\\apps\\customs_engine\\models.py",
+        "model": "TaxComponent"
+      },
+      {
+        "file": "\\apps\\customs_engine\\models.py",
+        "model": "Rule"
+      },
+      {
+        "file": "\\apps\\customs_engine\\models.py",
+        "model": "LegalSource"
+      },
+      {
+        "file": "\\apps\\customs_engine\\models.py",
+        "model": "RuleVersion"
+      },
+      {
+        "file": "\\apps\\simulations\\models.py",
+        "model": "Simulation"
+      },
+      {
+        "file": "\\apps\\simulations\\models.py",
+        "model": "CalculationSnapshot"
+      }
+    ]
+  }
+}
