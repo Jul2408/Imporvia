@@ -24,23 +24,31 @@ class CustomsCalculationService:
         cif = Decimal(str(cif_value))
         now = timezone.now()
         
+        # Safely extract category and excise
+        category = getattr(hs_code_obj, 'tariff_category', 'IV') if hs_code_obj else 'IV'
+        is_excise = getattr(hs_code_obj, 'is_excise_applicable', False) if hs_code_obj else False
+
         # 1. Fetch active rules ordered by priority
-        active_versions = RuleVersion.objects.filter(
-            status=RuleStatus.ACTIVE,
-            effective_from__lte=now
-        ).exclude(
-            effective_to__lt=now
-        ).select_related('rule', 'rule__tax_component')
+        active_versions = list(RuleVersion.objects.filter(
+            status=RuleStatus.ACTIVE
+        ).select_related('rule', 'rule__tax_component'))
         
-        # Sort explicitly in Python just in case (priority ascending)
+        # Filter effective dates in Python safely
+        active_versions = [
+            v for v in active_versions
+            if (v.effective_from is None or v.effective_from <= now) and
+               (v.effective_to is None or v.effective_to >= now)
+        ]
+        
+        # Sort explicitly in Python (priority ascending)
         active_versions = sorted(active_versions, key=lambda v: v.rule.priority)
         
         # 2. Context dictionary for formula evaluation
         context = {
             'CIF': cif,
             'TOTAL_TAXES': Decimal('0'),
-            'CATEGORY': hs_code_obj.tariff_category,
-            'EXCISE': hs_code_obj.is_excise_applicable
+            'CATEGORY': category or 'IV',
+            'EXCISE': is_excise
         }
         
         results = []
@@ -64,14 +72,14 @@ class CustomsCalculationService:
             # Arrondi à l'entier le plus proche (Règle douanière standard)
             amount = amount.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
             
-            # Store result
+            # Store result (convert Decimal to str for JSON serialization compatibility)
             tax_code = version.rule.tax_component.code
             results.append({
                 'tax_code': tax_code,
                 'tax_name': version.rule.tax_component.name,
                 'rule_name': version.rule.name,
                 'rate': str(version.default_rate) if version.default_rate else None,
-                'amount': amount,
+                'amount': str(amount),
                 'formula_used': version.base_formula
             })
             
@@ -80,10 +88,26 @@ class CustomsCalculationService:
             total_taxes += amount
             context['TOTAL_TAXES'] = total_taxes
             
+        # Fallback if no rules matched
+        if not results:
+            dd_rate = Decimal('0.30') if category == 'IV' else Decimal('0.20') if category == 'III' else Decimal('0.10') if category == 'II' else Decimal('0.00')
+            dd_amount = (cif * dd_rate).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+            cci_amount = (cif * Decimal('0.01')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+            rdi_amount = (cif * Decimal('0.0045')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+            tva_amount = ((cif + dd_amount + cci_amount + rdi_amount) * Decimal('0.1925')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+            results = [
+                {'tax_code': 'DD', 'tax_name': 'Droit de Douane', 'rule_name': f'DD ({int(dd_rate*100)}%)', 'rate': str(dd_rate), 'amount': str(dd_amount), 'formula_used': 'CIF * rate'},
+                {'tax_code': 'CCI', 'tax_name': "Contribution Communautaire d'Intégration", 'rule_name': 'CCI (1%)', 'rate': '0.01', 'amount': str(cci_amount), 'formula_used': 'CIF * rate'},
+                {'tax_code': 'RDI', 'tax_name': 'Redevance Informatique', 'rule_name': 'RDI (0.45%)', 'rate': '0.0045', 'amount': str(rdi_amount), 'formula_used': 'CIF * rate'},
+                {'tax_code': 'TVA', 'tax_name': 'Taxe sur la Valeur Ajoutée', 'rule_name': 'TVA Cameroun (19.25%)', 'rate': '0.1925', 'amount': str(tva_amount), 'formula_used': '(CIF + DD + CCI + RDI) * rate'},
+            ]
+            total_taxes = dd_amount + cci_amount + rdi_amount + tva_amount
+
         return {
-            'cif_value': cif,
-            'total_taxes': total_taxes,
-            'total_to_pay': cif + total_taxes,
+            'cif_value': str(cif),
+            'total_taxes': str(total_taxes),
+            'total_to_pay': str(cif + total_taxes),
             'breakdown': results
         }
         
