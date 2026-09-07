@@ -85,7 +85,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [])
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900 overflow-hidden">
+    <div className="min-h-dvh bg-slate-50 flex font-sans text-slate-900">
       
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
@@ -238,7 +238,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </motion.nav>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-dvh">
         
         {/* Header */}
         <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-30 shrink-0">

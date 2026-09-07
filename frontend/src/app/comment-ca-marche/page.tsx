@@ -102,7 +102,7 @@ export default function ImporViaCommentCaMarche() {
             viewport={{ once: true }}
             className="relative rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white"
           >
-            <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1200&auto=format&fit=crop" alt="Expert douanier" className="w-full h-125 object-cover hover:scale-105 transition-transform duration-1000" />
+            <img src="/jad20210219-eco-ci-dossiertransport-port-abidjan_print.avif" alt="Expert douanier" className="w-full h-125 object-cover hover:scale-105 transition-transform duration-1000" />
             <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-slate-900/90 to-transparent p-8 pt-24">
               <p className="text-white font-bold text-xl mb-1">Accompagnement Expert</p>
               <p className="text-slate-300">Notre équipe est composée d'anciens cadres de l'administration douanière et de transitaires chevronnés.</p>

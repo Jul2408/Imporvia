@@ -33,7 +33,7 @@ export default function ImporViaConnexion() {
       <div className="hidden md:flex md:w-1/2 lg:w-5/12 bg-slate-900 relative flex-col justify-between overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop" 
+            src="/jad20210219-eco-ci-dossiertransport-port-abidjan_print.avif" 
             alt="Port containers" 
             className="w-full h-full object-cover opacity-30 mix-blend-overlay"
           />
@@ -58,11 +58,10 @@ export default function ImporViaConnexion() {
           </motion.div>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.8 }} className="flex items-center gap-4 mt-12 pt-8 border-t border-white/10">
             <div className="flex -space-x-3">
-              {[
-                "https://images.unsplash.com/photo-1531123897727-8f129e1bf98c?q=80&w=100&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1507152832244-10d45c7eda57?q=80&w=100&auto=format&fit=crop",
-              ].map((src, i) => (
-                <img key={i} src={src} className="w-10 h-10 rounded-full border-2 border-slate-900 object-cover" alt="User" />
+              {["SK", "MT"].map((initials, i) => (
+                <div key={i} className={`w-10 h-10 rounded-full border-2 border-slate-900 shadow-xl flex items-center justify-center text-xs font-bold text-white ${["bg-blue-500", "bg-emerald-500"][i]}`}>
+                  {initials}
+                </div>
               ))}
             </div>
             <p className="text-sm text-slate-400 font-medium">Rejoint par +500 transitaires.</p>

@@ -24,7 +24,7 @@ Avec ImporVia, toutes ces nouvelles règles sont déjà intégrées dans notre m
     readTime: "5 min",
     author: "Aminata Koné",
     authorRole: "Experte Douanière",
-    img: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=1200&auto=format&fit=crop"
+    img: "/projet-dextension-du-terminal-a-conteneurs-du-port-de-douala.webp"
   }
 ];
 
@@ -52,7 +52,7 @@ Utiliser un outil comme ImporVia vous permet de vérifier en amont les déclarat
     readTime: "4 min",
     author: "Jean-Paul Etoundi",
     authorRole: "Consultant Logistique (Cameroun)",
-    img: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?q=80&w=1200&auto=format&fit=crop"
+    img: "/service-transport-maritime.UVTB1Yc1_Z1jcI7d.webp"
   };
 
   return (

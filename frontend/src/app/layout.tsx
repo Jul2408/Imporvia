@@ -1,6 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
+import { CookieBanner } from "@/components/ui/CookieBanner";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover",
+  themeColor: "#2563eb",
+};
 
 export const metadata: Metadata = {
   title: {
@@ -35,15 +45,28 @@ export default function RootLayout({
   return (
     <html lang="fr" className="h-full antialiased">
       <head>
+        {/* Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+
+        {/* PWA + Mobile */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#2563eb" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="ImporVia" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/favicon.png" />
       </head>
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           {children}
+          <CookieBanner />
         </AuthProvider>
       </body>
     </html>
   );
 }
+

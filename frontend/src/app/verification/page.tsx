@@ -94,7 +94,7 @@ function ResultCard({ state, simTotal, communiqueAmount }: { state: Verification
           <CardContent className="p-5 flex items-center justify-between">
             <div>
               <p className="text-sm text-text-muted">Écart détecté</p>
-              <p className="text-2xl font-bold mt-1" style={{ color: state === "ecart_important" ? "varerror" : "varwarning" }}>
+              <p className="text-2xl font-bold mt-1" style={{ color: state === "ecart_important" ? "var(--color-error)" : "var(--color-warning)" }}>
                 {diff > 0 ? "+" : ""}{diff.toLocaleString("fr-FR")} FCFA
               </p>
             </div>

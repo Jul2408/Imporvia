@@ -22,14 +22,14 @@ import {
   ChevronRight
 } from "lucide-react"
 
-// Background images for infinite scroll (Port, logistics, containers)
+// Background images for infinite scroll (Port, logistics, containers) - local images from /public
 const bgImages = [
-  "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1519003722824-194d4455a60c?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1501523460185-2aa5d2a0f981?q=80&w=800&auto=format&fit=crop"
+  "/service-transport-maritime.UVTB1Yc1_Z1jcI7d.webp",
+  "/jad20210219-eco-ci-dossiertransport-port-abidjan_print.avif",
+  "/projet-dextension-du-terminal-a-conteneurs-du-port-de-douala.webp",
+  "/service-transport-maritime.UVTB1Yc1_Z1jcI7d.webp",
+  "/jad20210219-eco-ci-dossiertransport-port-abidjan_print.avif",
+  "/projet-dextension-du-terminal-a-conteneurs-du-port-de-douala.webp",
 ]
 
 const scrollImages1 = [...bgImages, ...bgImages]
@@ -94,7 +94,7 @@ export default function ImporViaAccueil() {
 
       <main>
         {/* ===== HERO WITH INFINITE SCROLL BG ===== */}
-        <section className="relative min-h-screen flex items-center overflow-hidden bg-slate-900">
+        <section className="relative min-h-dvh flex items-center overflow-hidden bg-slate-900">
 
           {/* Animated Background Columns - 100% visible, no white gradient blocking them */}
           <div className="absolute inset-0 z-0 flex gap-4 p-4 opacity-50 -rotate-12 scale-[1.3] pointer-events-none">
@@ -160,15 +160,13 @@ export default function ImporViaAccueil() {
                 </Link>
               </motion.div>
 
-              {/* Social proof - African Professionals */}
+              {/* Social proof */}
               <motion.div variants={fadeUp} className="flex items-center gap-4 pt-10 mt-10 border-t border-white/10">
                 <div className="flex -space-x-3">
-                  {[
-                    "https://images.unsplash.com/photo-1531123897727-8f129e1bf98c?q=80&w=100&auto=format&fit=crop", // African woman
-                    "https://images.unsplash.com/photo-1507152832244-10d45c7eda57?q=80&w=100&auto=format&fit=crop", // African man
-                    "https://images.unsplash.com/photo-1531384441138-2736e62e0919?q=80&w=100&auto=format&fit=crop"  // African man
-                  ].map((src, i) => (
-                    <img key={`user-${i}`} src={src} className="w-12 h-12 rounded-full border-2 border-slate-900 object-cover shadow-xl" alt="User" />
+                  {["SK", "MT", "AD"].map((initials, i) => (
+                    <div key={`user-${i}`} className={`w-12 h-12 rounded-full border-2 border-slate-900 shadow-xl flex items-center justify-center text-xs font-bold text-white ${["bg-blue-500", "bg-emerald-500", "bg-violet-500"][i]}`}>
+                      {initials}
+                    </div>
                   ))}
                 </div>
                 <div className="flex flex-col">
@@ -182,8 +180,8 @@ export default function ImporViaAccueil() {
 
             {/* Right: UI Preview Card */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, rotateY: 15, perspective: 1000 }}
-              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+              initial={{ opacity: 0, scale: 0.95, x: 30 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-5 relative hidden lg:block"
             >
@@ -207,7 +205,7 @@ export default function ImporViaAccueil() {
                 <div className="p-6 space-y-6">
                   {/* Image inside card */}
                   <div className="w-full h-32 rounded-xl overflow-hidden relative">
-                    <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover" alt="" />
+                    <img src="/service-transport-maritime.UVTB1Yc1_Z1jcI7d.webp" className="w-full h-full object-cover" alt="Port maritime" />
                     <div className="absolute inset-0 bg-linear-to-t from-slate-900/80 to-transparent" />
                     <div className="absolute bottom-3 left-4">
                       <p className="text-white font-bold text-sm">Marchandise : Électronique</p>
@@ -372,7 +370,7 @@ export default function ImporViaAccueil() {
                   className="order-2 lg:order-1 relative rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white group"
                 >
                   <div className="absolute inset-0 bg-blue-600/10 group-hover:bg-transparent transition-colors z-10" />
-                  <img src="https://images.unsplash.com/photo-1542596594-649edbc13630?q=80&w=1200&auto=format&fit=crop" alt="Professionnel de bureau" className="w-full h-112.5 object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <img src="/ChatGPT-Image-28-juil.-2026-02_00_01.png" alt="Professionnel saisissant les paramètres" className="w-full h-112.5 object-cover object-top group-hover:scale-105 transition-transform duration-700" />
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, x: 50 }}
@@ -463,7 +461,7 @@ export default function ImporViaAccueil() {
 
         {/* ===== TESTIMONIALS (African Professionals) ===== */}
         <section className="py-32 px-6 bg-slate-900 text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop')] opacity-[0.03] bg-cover bg-center mix-blend-overlay" />
+          <div className="absolute inset-0" style={{backgroundImage: "url('/projet-dextension-du-terminal-a-conteneurs-du-port-de-douala.webp')", opacity: 0.04, backgroundSize: 'cover', backgroundPosition: 'center'}} />
 
           <div className="max-w-7xl mx-auto relative z-10">
             <motion.div
@@ -483,19 +481,16 @@ export default function ImporViaAccueil() {
                   quote: "Avant ImporVia, nous avions souvent des mauvaises surprises de trésorerie au port de Douala. Aujourd'hui, nos provisions douanières sont exactes au FCFA (XAF) près.",
                   name: "Sarah Koné",
                   role: "Directrice Supply Chain, ImportTech Cameroun",
-                  img: "https://images.unsplash.com/photo-1531123897727-8f129e1bf98c?q=80&w=200&auto=format&fit=crop"
                 },
                 {
                   quote: "L'outil a divisé par 3 le temps passé à vérifier les factures de nos transitaires. Le contrôle de cohérence est redoutablement efficace et sécurisé.",
                   name: "Marc Traoré",
                   role: "Directeur Financier, RetailCorp",
-                  img: "https://images.unsplash.com/photo-1507152832244-10d45c7eda57?q=80&w=200&auto=format&fit=crop"
                 },
                 {
                   quote: "C'est l'outil indispensable pour toute entreprise qui importe régulièrement dans la zone CEMAC. Les rapports PDF générés sont clairs et reconnus à la douane camerounaise.",
                   name: "Amadou Diallo",
                   role: "Gérant, Centrale d'Achat (Douala)",
-                  img: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?q=80&w=200&auto=format&fit=crop"
                 }
               ].map((t, i) => (
                 <motion.div
@@ -511,7 +506,9 @@ export default function ImporViaAccueil() {
                   </div>
                   <p className="text-lg text-slate-300 italic mb-8 leading-relaxed">"{t.quote}"</p>
                   <div className="flex items-center gap-4">
-                    <img src={t.img} className="w-14 h-14 rounded-full object-cover border-2 border-white/30" alt={t.name} />
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-extrabold text-lg border-2 border-white/30 shrink-0 ${["bg-blue-600", "bg-indigo-600", "bg-emerald-600"][i]}`}>
+                      {t.name.split(" ").map((n: string) => n[0]).join("")}
+                    </div>
                     <div>
                       <h4 className="font-bold text-white">{t.name}</h4>
                       <p className="text-sm text-blue-300">{t.role}</p>

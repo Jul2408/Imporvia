@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Shield, Menu, X } from "lucide-react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -16,10 +17,17 @@ export function SiteHeader() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md -webkit-backdrop-blur-md border-b border-slate-200 shadow-sm isolate">
       <div className="max-w-7xl mx-auto px-6 flex h-20 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 relative z-50">
-          <img src="/logo.png" alt="ImporVia Logo" className="h-16 w-auto object-contain shrink-0" />
+          <Image
+            src="/logo.png"
+            alt="ImporVia Logo"
+            width={140}
+            height={56}
+            className="h-14 w-auto object-contain shrink-0"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}

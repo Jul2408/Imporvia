@@ -178,7 +178,7 @@ function SecuriteSection() {
       <Card className="premium-card">
         <CardHeader>
           <CardTitle className="text-base">Sessions actives</CardTitle>
-          <CardDescription>Vos appareils connectés à DouaneCheck.</CardDescription>
+          <CardDescription>Vos appareils connectés à ImporVia.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between py-2">

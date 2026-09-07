@@ -90,11 +90,9 @@ export function Topbar({ onMobileMenuToggle }: { onMobileMenuToggle?: () => void
 
         {/* User avatar */}
         <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors group">
-          <img
-            className="h-8 w-8 rounded-full object-cover border-2 border-blue-200"
-            src="https://images.unsplash.com/photo-1507152832244-10d45c7eda57?q=80&w=100&auto=format&fit=crop"
-            alt="Profile"
-          />
+          <div className="h-8 w-8 rounded-full bg-blue-600 border-2 border-blue-200 flex items-center justify-center text-xs font-bold text-white shrink-0">
+            LA
+          </div>
           <span className="hidden lg:block text-sm font-bold text-slate-800">Laurent A.</span>
           <ChevronDown className="hidden lg:block h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
         </button>

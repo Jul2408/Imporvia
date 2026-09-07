@@ -19,7 +19,7 @@ const articles = [
     date: "12 Mars 2026",
     readTime: "5 min",
     featured: true,
-    img: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=1200&auto=format&fit=crop"
+    img: "/projet-dextension-du-terminal-a-conteneurs-du-port-de-douala.webp"
   },
   {
     id: 2,
@@ -29,7 +29,7 @@ const articles = [
     excerpt: "La valeur en douane est la base de tous vos calculs. Une erreur ici se répercute sur tous les postes de taxation. Guide complet pour éviter les erreurs classiques.",
     date: "28 Fév 2026",
     readTime: "8 min",
-    img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=800&auto=format&fit=crop"
+    img: "/calcul.png"
   },
   {
     id: 3,
@@ -39,7 +39,7 @@ const articles = [
     excerpt: "Comment une PME camerounaise a réduit sa charge fiscale douanière de 23% en reclassant correctement ses équipements informatiques.",
     date: "15 Fév 2026",
     readTime: "6 min",
-    img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop"
+    img: "/service-transport-maritime.UVTB1Yc1_Z1jcI7d.webp"
   },
   {
     id: 4,
@@ -49,7 +49,7 @@ const articles = [
     excerpt: "Les perturbations logistiques mondiales modifient les délais et les coûts de passage en douane. Stratégies pour anticiper ces changements.",
     date: "02 Fév 2026",
     readTime: "7 min",
-    img: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?q=80&w=800&auto=format&fit=crop"
+    img: "/jad20210219-eco-ci-dossiertransport-port-abidjan_print.avif"
   },
   {
     id: 5,
@@ -59,7 +59,7 @@ const articles = [
     excerpt: "La Zone de Libre-Échange Continentale Africaine entre dans sa phase opérationnelle. Voici comment en tirer parti pour réduire vos droits de douane.",
     date: "25 Jan 2026",
     readTime: "10 min",
-    img: "https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=800&auto=format&fit=crop"
+    img: "/ChatGPT-Image-28-juil.-2026-02_00_01.png"
   },
   {
     id: 6,
@@ -69,7 +69,7 @@ const articles = [
     excerpt: "Guide pratique pour naviguer dans le système de dédouanement électronique du Cameroun. Étapes, délais et points de blocage à éviter.",
     date: "10 Jan 2026",
     readTime: "9 min",
-    img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=800&auto=format&fit=crop"
+    img: "/projet-dextension-du-terminal-a-conteneurs-du-port-de-douala.webp"
   },
 ]
 

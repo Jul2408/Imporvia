@@ -1,0 +1,27 @@
+{
+  "name": "ImporVia",
+  "short_name": "ImporVia",
+  "description": "Plateforme intelligente de simulation et validation des déclarations en douane pour la zone CEMAC/CEDEAO.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["business", "finance", "productivity"]
+}

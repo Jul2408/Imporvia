@@ -122,11 +122,11 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
           "flex items-center gap-3 px-3 py-3 mt-2 rounded-xl bg-slate-50 border border-slate-200",
           collapsed && !isMobile && "justify-center"
         )}>
-          <img
-            src="https://images.unsplash.com/photo-1507152832244-10d45c7eda57?q=80&w=100&auto=format&fit=crop"
-            className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
-            alt="User"
-          />
+          <div
+            className="w-8 h-8 rounded-full bg-blue-600 border-2 border-white shadow-sm flex items-center justify-center text-xs font-bold text-white shrink-0"
+          >
+            LA
+          </div>
           {(!collapsed || isMobile) && (
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-slate-900 truncate">Laurent A.</p>

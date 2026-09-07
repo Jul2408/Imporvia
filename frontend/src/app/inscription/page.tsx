@@ -127,8 +127,8 @@ export default function ImporViaInscription() {
       <div className="hidden md:flex md:w-1/2 lg:w-5/12 bg-slate-900 relative flex-col justify-between overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1542596594-649edbc13630?q=80&w=1200&auto=format&fit=crop"
-            alt="Professionals"
+            src="/projet-dextension-du-terminal-a-conteneurs-du-port-de-douala.webp"
+            alt="Port de Douala"
             className="w-full h-full object-cover opacity-30 mix-blend-overlay"
           />
           <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-900/80 to-slate-900/40" />
