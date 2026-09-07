@@ -67,12 +67,18 @@ const quickActions = [
   { label: "Nouveau Code SH", href: "/admin/codes-sh", icon: ListTree },
 ]
 
+import { useAuth } from "@/lib/auth-context"
+import { useRouter } from "next/navigation"
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [isQuickMenuOpen, setQuickMenuOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
   const quickMenuRef = useRef<HTMLDivElement>(null)
+  
+  const { user, isLoading, logout } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -83,6 +89,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.replace("/connexion")
+      } else if (!user.is_staff) {
+        router.replace("/dashboard")
+      }
+    }
+  }, [user, isLoading, router])
+
+  if (isLoading || !user || !user.is_staff) {
+    return <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+    </div>
+  }
 
   return (
     <div className="min-h-dvh bg-slate-50 flex font-sans text-slate-900">
@@ -220,16 +242,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           
           <div className={`flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 ${collapsed ? 'justify-center' : ''}`}>
             <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 border-2 border-white shadow-sm shrink-0">
-              AD
+              {user.first_name ? user.first_name.substring(0, 2).toUpperCase() : 'AD'}
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-slate-900 truncate">Admin Principal</div>
-                <div className="text-xs text-slate-500 truncate">admin@imporvia.com</div>
+                <div className="text-sm font-bold text-slate-900 truncate">{user.first_name || 'Admin'} {user.last_name}</div>
+                <div className="text-xs text-slate-500 truncate">{user.email}</div>
               </div>
             )}
             {!collapsed && (
-              <button className="text-slate-400 hover:text-red-500 transition-colors shrink-0" title="Déconnexion">
+              <button onClick={logout} className="text-slate-400 hover:text-red-500 transition-colors shrink-0" title="Déconnexion">
                 <LogOut className="w-4 h-4" />
               </button>
             )}

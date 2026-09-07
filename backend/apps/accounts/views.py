@@ -2,11 +2,54 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
+from django.conf import settings
 
 from .models import User
+
+def set_jwt_cookies(response, access_token, refresh_token=None):
+    cookie_kwargs = {
+        'httponly': True,
+        'samesite': 'Lax',
+        'secure': not settings.DEBUG,
+    }
+    response.set_cookie('access_token', access_token, max_age=3600, **cookie_kwargs)
+    if refresh_token:
+        response.set_cookie('refresh_token', refresh_token, max_age=86400 * 7, **cookie_kwargs)
+    return response
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            access_token = response.data.get('access')
+            refresh_token = response.data.get('refresh')
+            # Remove tokens from JSON body for security
+            del response.data['access']
+            del response.data['refresh']
+            response.data['detail'] = "Successfully authenticated."
+            set_jwt_cookies(response, access_token, refresh_token)
+        return response
+
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        # If refresh token is in cookies, inject it into data for SimpleJWT
+        refresh_token = request.COOKIES.get('refresh_token')
+        if refresh_token and 'refresh' not in request.data:
+            request.data['refresh'] = refresh_token
+            
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            access_token = response.data.get('access')
+            del response.data['access']
+            new_refresh = response.data.get('refresh')
+            if new_refresh:
+                del response.data['refresh']
+            response.data['detail'] = "Token refreshed."
+            set_jwt_cookies(response, access_token, new_refresh)
+        return response
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -48,39 +91,37 @@ class RegisterView(generics.CreateAPIView):
             user.save()
 
             refresh = RefreshToken.for_user(user)
-            return Response({
+            response = Response({
                 'user': {
                     'id': str(user.id),
                     'email': user.email,
                     'first_name': user.first_name,
                     'last_name': user.last_name,
-                },
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
+                }
             }, status=status.HTTP_200_OK)
+            return set_jwt_cookies(response, str(refresh.access_token), str(refresh))
 
         # Standard new user creation
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
-        return Response({
+        response = Response({
             'user': {
                 'id': str(user.id),
                 'email': user.email,
                 'first_name': user.first_name,
                 'last_name': user.last_name,
-            },
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
+            }
         }, status=status.HTTP_201_CREATED)
+        return set_jwt_cookies(response, str(refresh.access_token), str(refresh))
 
 
 class UserMeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'phone_number', 'email_verified', 'created_at']
-        read_only_fields = ['id', 'email', 'email_verified', 'created_at']
+        fields = ['id', 'email', 'first_name', 'last_name', 'phone_number', 'email_verified', 'is_staff', 'created_at']
+        read_only_fields = ['id', 'email', 'email_verified', 'is_staff', 'created_at']
 
 
 class UserMeView(generics.RetrieveUpdateAPIView):
@@ -90,18 +131,31 @@ class UserMeView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        # Cache for 30s on client side to reduce hammering
+        response['Cache-Control'] = 'private, max-age=30'
+        return response
+
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
-            refresh_token = request.data.get('refresh')
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response({'detail': 'Déconnexion réussie.'}, status=status.HTTP_205_RESET_CONTENT)
+            refresh_token = request.COOKIES.get('refresh_token') or request.data.get('refresh')
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            response = Response({'detail': 'Déconnexion réussie.'}, status=status.HTTP_205_RESET_CONTENT)
+            response.delete_cookie('access_token')
+            response.delete_cookie('refresh_token')
+            return response
         except Exception:
-            return Response({'error': 'Token invalide ou déjà révoqué.'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response({'error': 'Token invalide ou déjà révoqué.'}, status=status.HTTP_400_BAD_REQUEST)
+            response.delete_cookie('access_token')
+            response.delete_cookie('refresh_token')
+            return response
 
 
 class ChangePasswordSerializer(serializers.Serializer):

@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { CookieBanner } from "@/components/ui/CookieBanner";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -45,11 +48,6 @@ export default function RootLayout({
   return (
     <html lang="fr" className="h-full antialiased" data-scroll-behavior="smooth">
       <head>
-        {/* Fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
-
         {/* PWA + Mobile */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#2563eb" />
@@ -60,7 +58,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/favicon.png" />
         <link rel="apple-touch-icon" sizes="512x512" href="/favicon.png" />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className={`${inter.variable} min-h-full flex flex-col font-sans`}>
         <AuthProvider>
           {children}
           <CookieBanner />

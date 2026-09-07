@@ -1,7 +1,6 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
-import Cookies from "js-cookie"
 import { useRouter } from "next/navigation"
 import apiClient from "@/lib/api"
 
@@ -12,6 +11,7 @@ interface User {
   last_name: string
   phone_number?: string
   email_verified: boolean
+  is_staff?: boolean
 }
 
 interface Company {
@@ -57,30 +57,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (companyRes.data?.results?.length > 0) {
         setCompany(companyRes.data.results[0])
       }
+      return userRes.data
     } catch {
       setUser(null)
       setCompany(null)
+      return null
     }
   }, [])
 
   useEffect(() => {
-    const token = Cookies.get("access_token")
-    if (token) {
-      refreshUser().finally(() => setIsLoading(false))
-    } else {
-      setIsLoading(false)
-    }
+    // Essayer de récupérer le profil utilisateur au chargement. 
+    // Si le cookie est présent, l'appel réussira, sinon il échouera (ce qui gère la déconnexion locale).
+    refreshUser().finally(() => setIsLoading(false))
   }, [refreshUser])
 
   const login = async (email: string, password: string) => {
-    const res = await apiClient.post("/auth/login/", { email, password })
-    const { access, refresh } = res.data
-    Cookies.set("access_token", access, { expires: 1 })
-    Cookies.set("refresh_token", refresh, { expires: 7 })
-    await refreshUser()
-    // Check if admin
-    const meRes = await apiClient.get("/users/me/")
-    if (meRes.data?.is_staff) {
+    // Les cookies HttpOnly seront set automatiquement par la réponse
+    await apiClient.post("/auth/login/", { email, password })
+    const userData = await refreshUser()
+    if (userData?.is_staff) {
       router.push("/admin")
     } else {
       router.push("/dashboard")
@@ -88,23 +83,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const register = async (data: RegisterData) => {
-    const res = await apiClient.post("/auth/register/", data)
-    const { access, refresh } = res.data
-    Cookies.set("access_token", access, { expires: 1 })
-    Cookies.set("refresh_token", refresh, { expires: 7 })
-    await refreshUser()
-    router.push("/dashboard")
+    await apiClient.post("/auth/register/", data)
+    const userData = await refreshUser()
+    if (userData?.is_staff) {
+      router.push("/admin")
+    } else {
+      router.push("/dashboard")
+    }
   }
 
   const logout = async () => {
     try {
-      const refresh = Cookies.get("refresh_token")
-      if (refresh) {
-        await apiClient.post("/auth/logout/", { refresh })
-      }
+      await apiClient.post("/auth/logout/")
+    } catch {
+      // Ignorer si déjà déconnecté
     } finally {
-      Cookies.remove("access_token")
-      Cookies.remove("refresh_token")
       setUser(null)
       setCompany(null)
       router.push("/connexion")

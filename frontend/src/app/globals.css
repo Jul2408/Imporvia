@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* 
+  CRITICAL: Override Tailwind v4 oklch/lab color variables with hex equivalents.
+  This prevents jsPDF / html2canvas from crashing when parsing CSS colors.
+  Tailwind v4 generates oklch() colors by default which these libraries don't support.
+*/
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+}
+
 @theme {
   --font-inter: "Inter", sans-serif;
 

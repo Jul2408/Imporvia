@@ -2,6 +2,13 @@
 import React, { useState } from "react";
 import apiClient from "@/lib/api";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
+
+declare global {
+  interface Window {
+    CinetPay: any;
+  }
+}
 
 export default function ImporViaPaiement() {
   const router = useRouter();
@@ -10,28 +17,76 @@ export default function ImporViaPaiement() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [scriptLoaded, setScriptLoaded] = useState(false);
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!scriptLoaded || !window.CinetPay) {
+      alert("Le service de paiement est en cours de chargement. Veuillez patienter.");
+      return;
+    }
     setLoading(true);
+
     try {
-      const res = await apiClient.post("/billing/mock-checkout/");
-      if (res.data.status === "success") {
-        setSuccess(true);
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 2000);
-      }
+      // Configuration CinetPay (Idéalement, apiKey et siteId viennent de variables d'environnement)
+      window.CinetPay.setConfig({
+        apikey: process.env.NEXT_PUBLIC_CINETPAY_APIKEY || "21294541465eaeb384c2642.45939226",
+        site_id: process.env.NEXT_PUBLIC_CINETPAY_SITEID || "430582",
+        notify_url: "https://votre-domaine.com/api/v1/billing/cinetpay/notify/", // À remplacer en prod
+        mode: "PRODUCTION",
+      });
+
+      // Lancement du Checkout
+      window.CinetPay.getCheckout({
+        transaction_id: `TXN_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        amount: 150000,
+        currency: "XAF",
+        channels: "ALL",
+        description: "Abonnement PRO ImporVia",
+        customer_name: firstName,
+        customer_surname: lastName,
+        customer_email: email,
+        customer_phone_number: "",
+        customer_address: "En ligne",
+        customer_city: "Douala",
+        customer_country: "CM",
+        customer_state: "CM",
+        customer_zip_code: "00000",
+      });
+
+      // Listeners
+      window.CinetPay.waitResponse(function(data: any) {
+        setLoading(false);
+        if (data.status === "REFUSED") {
+          alert("Votre paiement a échoué ou a été annulé.");
+        } else if (data.status === "ACCEPTED") {
+          setSuccess(true);
+          setTimeout(() => {
+            router.push("/dashboard");
+          }, 2000);
+        }
+      });
+
+      window.CinetPay.onError(function(data: any) {
+        setLoading(false);
+        console.error("Erreur CinetPay:", data);
+        alert("Erreur technique lors de l'initialisation du paiement.");
+      });
+
     } catch (error) {
       console.error(error);
-      alert("Une erreur est survenue lors du paiement.");
-    } finally {
+      alert("Une erreur est survenue lors de la préparation du paiement.");
       setLoading(false);
     }
   };
 
   return (
     <>
+      <Script 
+        src="https://cdn.cinetpay.com/seamless/main.js" 
+        strategy="lazyOnload" 
+        onLoad={() => setScriptLoaded(true)}
+      />
       <header className="sticky top-0 z-50 flex justify-between items-center px-lg py-sm w-full max-w-container-max mx-auto bg-surface-lowest border-b border-outline-variant shadow-sm">
         <div className="flex items-center gap-md">
           <span className="font-headline-md text-headline-md font-bold text-primary">ImporVia</span>

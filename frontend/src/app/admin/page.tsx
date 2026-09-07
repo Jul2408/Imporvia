@@ -195,7 +195,7 @@ export default function ImporViaAdminDashboard() {
           {/* RECENT ACTIVITY */}
           <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
             <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h2 className="font-bold text-lg flex items-center gap-2"><Activity className="w-5 h-5 text-blue-600" /> Journal d&apos;Audit (Temps Réel)</h2>
+              <h2 className="font-bold text-lg flex items-center gap-2"><Activity className="w-5 h-5 text-blue-600" /> Journal d'Audit (Temps Réel)</h2>
               <button className="text-sm font-semibold text-blue-600 hover:text-blue-700">Voir tout</button>
             </div>
             <div className="flex-1 p-0 overflow-x-auto">

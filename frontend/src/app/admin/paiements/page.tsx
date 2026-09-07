@@ -1,29 +1,74 @@
 "use client"
 
-import React, { useState } from "react"
-import { CreditCard, Search, Download, CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight, TrendingUp } from "lucide-react"
+import React, { useState, useEffect, useCallback } from "react"
+import { CreditCard, Search, Download, CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight, TrendingUp, Loader2, RefreshCw } from "lucide-react"
 import { motion } from "framer-motion"
-
-const transactions = [
-  { id: "PAY-2026-0891", company: "LogisTech SA", plan: "Pro", amount: "150 000", method: "Orange Money", date: "28 Août 2026", status: "success" },
-  { id: "PAY-2026-0890", company: "Import Express", plan: "Starter", amount: "50 000", method: "MTN MoMo", date: "27 Août 2026", status: "success" },
-  { id: "PAY-2026-0889", company: "Tech Douala SARL", plan: "Entreprise", amount: "Sur devis", method: "Virement", date: "26 Août 2026", status: "pending" },
-  { id: "PAY-2026-0888", company: "Global Trade Ltd", plan: "Pro", amount: "150 000", method: "Carte Bancaire", date: "25 Août 2026", status: "failed" },
-  { id: "PAY-2026-0887", company: "Brasseries du Cam.", plan: "Pro", amount: "1 500 000", method: "Virement", date: "24 Août 2026", status: "success" },
-]
+import apiClient from "@/lib/api"
 
 const statusConfig: Record<string, { label: string; icon: React.ReactNode; className: string }> = {
-  success: { label: "Payé", icon: <CheckCircle2 className="w-3.5 h-3.5" />, className: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
-  pending: { label: "En attente", icon: <Clock className="w-3.5 h-3.5" />, className: "bg-amber-50 text-amber-700 border border-amber-200" },
-  failed:  { label: "Échoué", icon: <XCircle className="w-3.5 h-3.5" />, className: "bg-red-50 text-red-700 border border-red-200" },
+  SUCCESS: { label: "Payé", icon: <CheckCircle2 className="w-3.5 h-3.5" />, className: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
+  PENDING: { label: "En attente", icon: <Clock className="w-3.5 h-3.5" />, className: "bg-amber-50 text-amber-700 border border-amber-200" },
+  FAILED:  { label: "Échoué", icon: <XCircle className="w-3.5 h-3.5" />, className: "bg-red-50 text-red-700 border border-red-200" },
 }
 
 export default function ImporViaAdminPaiements() {
   const [search, setSearch] = useState("")
-  const filtered = transactions.filter(t =>
-    t.id.toLowerCase().includes(search.toLowerCase()) ||
-    t.company.toLowerCase().includes(search.toLowerCase())
-  )
+  const [statusFilter, setStatusFilter] = useState("")
+  const [transactions, setTransactions] = useState<any[]>([])
+  const [count, setCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const pageSize = 20
+
+  const fetchPayments = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const params: any = { page, page_size: pageSize }
+      if (search) params.search = search
+      if (statusFilter) params.status = statusFilter
+      const res = await apiClient.get("/admin/payments/", { params })
+      setTransactions(res.data?.results || res.data || [])
+      setCount(res.data?.count || 0)
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Erreur de chargement des paiements")
+    } finally {
+      setLoading(false)
+    }
+  }, [page, search, statusFilter])
+
+  useEffect(() => {
+    const t = setTimeout(() => fetchPayments(), 300)
+    return () => clearTimeout(t)
+  }, [fetchPayments])
+
+  const totalPages = Math.max(1, Math.ceil(count / pageSize))
+
+  const successfulTotal = transactions.filter(t => t.status === 'SUCCESS').reduce((acc, t) => acc + parseFloat(t.amount || 0), 0)
+  const successfulCount = transactions.filter(t => t.status === 'SUCCESS').length
+  const pendingCount = transactions.filter(t => t.status === 'PENDING').length
+
+  const handleExportCSV = () => {
+    const header = ["ID Transaction", "Entreprise", "Plan", "Montant (FCFA)", "Méthode", "Date", "Statut"]
+    const rows = transactions.map(t => [
+      t.transaction_id || t.id,
+      t.company_name || "",
+      t.plan_name || "",
+      t.amount || "",
+      t.payment_method || "",
+      new Date(t.created_at).toLocaleDateString('fr-FR'),
+      t.status || ""
+    ])
+    const csvContent = [header, ...rows].map(r => r.join(",")).join("\n")
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `paiements_${new Date().toISOString().split('T')[0]}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
@@ -34,17 +79,22 @@ export default function ImporViaAdminPaiements() {
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Paiements & Facturation</h1>
             <p className="text-slate-500 font-medium mt-1">Historique des transactions et gestion des revenus de la plateforme.</p>
           </div>
-          <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/30">
-            <Download className="w-4 h-4" /> Exporter CSV
-          </button>
+          <div className="flex items-center gap-3">
+            <button onClick={fetchPayments} className="p-2.5 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-slate-600">
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+            <button onClick={handleExportCSV} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/30">
+              <Download className="w-4 h-4" /> Exporter CSV
+            </button>
+          </div>
         </div>
 
         {/* KPI Mini Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { label: "MRR (Août 2026)", value: "14 400 000 FCFA", icon: <TrendingUp className="w-5 h-5 text-emerald-600" />, bg: "bg-emerald-50" },
-            { label: "Transactions réussies", value: "96 / 98", icon: <CheckCircle2 className="w-5 h-5 text-blue-600" />, bg: "bg-blue-50" },
-            { label: "Paiements en attente", value: "3", icon: <Clock className="w-5 h-5 text-amber-600" />, bg: "bg-amber-50" },
+            { label: "Revenu Total (page)", value: loading ? "..." : `${successfulTotal.toLocaleString('fr-FR')} FCFA`, icon: <TrendingUp className="w-5 h-5 text-emerald-600" />, bg: "bg-emerald-50" },
+            { label: "Transactions réussies", value: loading ? "..." : `${successfulCount} / ${transactions.length}`, icon: <CheckCircle2 className="w-5 h-5 text-blue-600" />, bg: "bg-blue-50" },
+            { label: "Paiements en attente", value: loading ? "..." : `${pendingCount}`, icon: <Clock className="w-5 h-5 text-amber-600" />, bg: "bg-amber-50" },
           ].map((kpi, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
               className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
@@ -61,66 +111,94 @@ export default function ImporViaAdminPaiements() {
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-4 items-center">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-            <input value={search} onChange={e => setSearch(e.target.value)}
+            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
               className="pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-slate-50 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Rechercher une transaction..." />
+              placeholder="Rechercher une transaction, entreprise..." />
           </div>
-          <select className="py-2.5 px-4 rounded-xl border border-slate-200 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-600">
-            <option>Tous les statuts</option>
-            <option>Payé</option>
-            <option>En attente</option>
-            <option>Échoué</option>
+          <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1) }}
+            className="py-2.5 px-4 rounded-xl border border-slate-200 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-600">
+            <option value="">Tous les statuts</option>
+            <option value="SUCCESS">Payé</option>
+            <option value="PENDING">En attente</option>
+            <option value="FAILED">Échoué</option>
           </select>
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                <tr>
-                  <th className="py-4 px-6 whitespace-nowrap">ID Transaction</th>
-                  <th className="py-4 px-6 whitespace-nowrap">Entreprise</th>
-                  <th className="py-4 px-6 whitespace-nowrap">Plan</th>
-                  <th className="py-4 px-6 whitespace-nowrap">Montant (FCFA)</th>
-                  <th className="py-4 px-6 whitespace-nowrap">Méthode</th>
-                  <th className="py-4 px-6 whitespace-nowrap">Date</th>
-                  <th className="py-4 px-6 whitespace-nowrap">Statut</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm">
-                {filtered.map((t, i) => {
-                  const s = statusConfig[t.status]
-                  return (
-                    <tr key={i} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                      <td className="py-4 px-6 font-mono font-bold text-blue-600 text-xs">{t.id}</td>
-                      <td className="py-4 px-6 font-bold text-slate-900">{t.company}</td>
-                      <td className="py-4 px-6 whitespace-nowrap">
-                        <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg text-xs font-bold">{t.plan}</span>
-                      </td>
-                      <td className="py-4 px-6 font-extrabold text-slate-900">{t.amount}</td>
-                      <td className="py-4 px-6 text-slate-600">{t.method}</td>
-                      <td className="py-4 px-6 text-slate-500">{t.date}</td>
-                      <td className="py-4 px-6 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold ${s.className}`}>
-                          {s.icon} {s.label}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div className="bg-slate-50 border-t border-slate-200 p-4 flex items-center justify-between text-sm font-medium text-slate-500">
-            <span>Affichage 1 à {filtered.length} sur 98 transactions</span>
-            <div className="flex gap-1">
-              <button className="p-2 rounded-lg opacity-50 cursor-not-allowed"><ChevronLeft className="w-5 h-5" /></button>
-              <button className="w-9 h-9 rounded-lg bg-blue-600 text-white font-bold flex items-center justify-center">1</button>
-              <button className="w-9 h-9 rounded-lg hover:bg-white transition-colors flex items-center justify-center">2</button>
-              <button className="p-2 rounded-lg hover:bg-white transition-colors"><ChevronRight className="w-5 h-5" /></button>
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-96">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center h-96">
+              <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-4" />
+              <p className="text-slate-500 font-medium">Chargement des paiements...</p>
             </div>
-          </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center h-96">
+              <p className="text-red-500 font-medium">{error}</p>
+              <button onClick={fetchPayments} className="mt-4 text-blue-600 hover:underline">Réessayer</button>
+            </div>
+          ) : transactions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-96">
+              <CreditCard className="w-12 h-12 text-slate-300 mb-4" />
+              <p className="text-slate-500 font-medium">Aucun paiement trouvé.</p>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <tr>
+                      <th className="py-4 px-6 whitespace-nowrap">ID Transaction</th>
+                      <th className="py-4 px-6 whitespace-nowrap">Entreprise</th>
+                      <th className="py-4 px-6 whitespace-nowrap">Plan</th>
+                      <th className="py-4 px-6 whitespace-nowrap">Montant (FCFA)</th>
+                      <th className="py-4 px-6 whitespace-nowrap">Méthode</th>
+                      <th className="py-4 px-6 whitespace-nowrap">Date</th>
+                      <th className="py-4 px-6 whitespace-nowrap">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm">
+                    {transactions.map((t, i) => {
+                      const s = statusConfig[t.status] || { label: t.status, icon: null, className: "bg-slate-100 text-slate-700" }
+                      return (
+                        <tr key={t.id || i} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                          <td className="py-4 px-6 font-mono font-bold text-blue-600 text-xs">{t.transaction_id || String(t.id || "").split('-')[0]}</td>
+                          <td className="py-4 px-6 font-bold text-slate-900">{t.company_name || "—"}</td>
+                          <td className="py-4 px-6 whitespace-nowrap">
+                            <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg text-xs font-bold">{t.plan_name || "—"}</span>
+                          </td>
+                          <td className="py-4 px-6 font-extrabold text-slate-900">{parseFloat(t.amount || 0).toLocaleString('fr-FR')}</td>
+                          <td className="py-4 px-6 text-slate-600">{t.payment_method || "N/A"}</td>
+                          <td className="py-4 px-6 text-slate-500">{new Date(t.created_at).toLocaleDateString('fr-FR')}</td>
+                          <td className="py-4 px-6 whitespace-nowrap">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold ${s.className}`}>
+                              {s.icon} {s.label}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <div className="bg-slate-50 border-t border-slate-200 p-4 flex items-center justify-between text-sm font-medium text-slate-500">
+                <span>Page {page} / {totalPages} — {count} transactions au total</span>
+                <div className="flex gap-1">
+                  <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1).map(p => (
+                    <button key={p} onClick={() => setPage(p)}
+                      className={`w-9 h-9 rounded-lg font-bold flex items-center justify-center transition-colors ${p === page ? 'bg-blue-600 text-white' : 'hover:bg-slate-200 text-slate-600'}`}>
+                      {p}
+                    </button>
+                  ))}
+                  <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </main>
