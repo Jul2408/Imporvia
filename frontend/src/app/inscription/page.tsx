@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth-context"
 import {
   Shield, Mail, Phone, ArrowRight, ArrowLeft,
   User, Building2, CheckCircle2, Lock, Eye, EyeOff,
-  CreditCard, Zap, Rocket, Check, Sparkles
+  CreditCard, Zap, Rocket, Check, Sparkles, AlertCircle
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -59,6 +59,7 @@ export default function ImporViaInscription() {
   const [showPassword, setShowPassword] = React.useState(false)
   const [showConfirm, setShowConfirm] = React.useState(false)
   const [submitting, setSubmitting] = React.useState(false)
+  const [error, setError] = React.useState("")
 
   const [form, setForm] = React.useState({
     firstName: "",
@@ -93,6 +94,7 @@ export default function ImporViaInscription() {
   const { register } = useAuth()
 
   const handleSubmit = async () => {
+    setError("")
     setSubmitting(true)
     try {
       await register({
@@ -102,11 +104,30 @@ export default function ImporViaInscription() {
         password: form.password,
         phone_number: form.phone,
       })
-      // The register method in useAuth will redirect to /onboarding on success
     } catch (e: any) {
-      console.error(e)
-      // Ideally show error on UI, for now just log it or alert
-      alert(e.response?.data?.detail || "Erreur lors de l'inscription")
+      console.error("Registration error:", e)
+      const data = e?.response?.data
+      if (data) {
+        if (data.email) {
+          const msg = Array.isArray(data.email) ? data.email.join(" ") : data.email
+          setError(`Email : ${msg}`)
+        } else if (data.password) {
+          const msg = Array.isArray(data.password) ? data.password.join(" ") : data.password
+          setError(`Mot de passe : ${msg}`)
+        } else if (data.detail) {
+          setError(data.detail)
+        } else {
+          const firstKey = Object.keys(data)[0]
+          if (firstKey) {
+            const val = data[firstKey]
+            setError(`${firstKey} : ${Array.isArray(val) ? val.join(" ") : val}`)
+          } else {
+            setError("Champs invalides. Veuillez vérifier vos données.")
+          }
+        }
+      } else {
+        setError("Impossible de contacter le serveur. Vérifiez votre connexion.")
+      }
     } finally {
       setSubmitting(false)
     }
@@ -177,6 +198,13 @@ export default function ImporViaInscription() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">Créer votre compte</h2>
             <p className="text-slate-600 font-medium">Veuillez renseigner vos informations pour débuter.</p>
           </div>
+
+          {error && (
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium">
+              <AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
+              <span>{error}</span>
+            </motion.div>
+          )}
 
           {/* Step Indicator */}
           <div className="mb-10">

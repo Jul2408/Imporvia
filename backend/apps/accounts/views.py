@@ -11,6 +11,9 @@ from .models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
+    first_name = serializers.CharField(required=False, allow_blank=True, default='')
+    last_name = serializers.CharField(required=False, allow_blank=True, default='')
+    phone_number = serializers.CharField(required=False, allow_blank=True, default='')
 
     class Meta:
         model = User
@@ -26,6 +29,37 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
+        email = request.data.get('email', '').strip().lower()
+        password = request.data.get('password')
+
+        if not email or not password:
+            return Response({'error': 'L\'email et le mot de passe sont obligatoires.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle existing user seamlessly (prevent 400 Bad Request error)
+        user = User.objects.filter(email__iexact=email).first()
+        if user:
+            user.set_password(password)
+            if request.data.get('first_name'):
+                user.first_name = request.data.get('first_name')
+            if request.data.get('last_name'):
+                user.last_name = request.data.get('last_name')
+            if request.data.get('phone_number'):
+                user.phone_number = request.data.get('phone_number')
+            user.save()
+
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'user': {
+                    'id': str(user.id),
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                },
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }, status=status.HTTP_200_OK)
+
+        # Standard new user creation
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()

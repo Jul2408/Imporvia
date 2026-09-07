@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     Cookies.set("access_token", access, { expires: 1 })
     Cookies.set("refresh_token", refresh, { expires: 7 })
     await refreshUser()
-    router.push("/onboarding")
+    router.push("/dashboard")
   }
 
   const logout = async () => {
