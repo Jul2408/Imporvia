@@ -81,26 +81,29 @@ function HeroSlideshow({ images }: { images: string[] }) {
   React.useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 5000);
+    }, 6000);
     return () => clearInterval(timer);
   }, [images.length]);
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden bg-slate-900">
-      <AnimatePresence mode="popLayout">
+    <div className="absolute inset-0 z-0 overflow-hidden bg-slate-950">
+      <AnimatePresence>
         <motion.img
           key={currentIndex}
           src={images[currentIndex]}
-          initial={{ opacity: 0, scale: 1.05 }}
+          initial={{ opacity: 0, scale: 1.15 }}
           animate={{ opacity: 0.5, scale: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
+          transition={{ 
+            opacity: { duration: 2, ease: "easeInOut" },
+            scale: { duration: 8, ease: "linear" }
+          }}
           className="absolute inset-0 w-full h-full object-cover"
           alt="Hero background"
         />
       </AnimatePresence>
-      <div className="absolute inset-0 bg-linear-to-r from-slate-950/90 via-slate-900/60 to-transparent z-10" />
-      <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay z-10" />
+      <div className="absolute inset-0 bg-linear-to-r from-slate-950 via-slate-900/60 to-transparent z-10" />
+      <div className="absolute inset-0 bg-blue-900/20 mix-blend-overlay z-10" />
     </div>
   );
 }
@@ -195,7 +198,7 @@ export default function ImporViaAccueil() {
               transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-5 relative hidden lg:flex justify-center items-end h-full"
             >
-              <img src="/douanier.png" alt="Douanier Africain Professionnel" className="max-h-[85vh] w-auto object-contain drop-shadow-2xl brightness-110 contrast-125" style={{ mixBlendMode: 'plus-lighter' }} />
+              <img src="/douane-12.png" alt="Douanier Africain Professionnel" className="max-h-[95vh] w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] scale-110 origin-bottom" />
             </motion.div>
           </div>
         </section>
