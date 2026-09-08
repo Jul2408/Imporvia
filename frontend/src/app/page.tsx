@@ -198,7 +198,7 @@ export default function ImporViaAccueil() {
               transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-5 relative hidden lg:flex justify-center items-end h-full"
             >
-              <img src="/douane-12.png" alt="Douanier Africain Professionnel" className="max-h-[95vh] w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] scale-110 origin-bottom" />
+              <img src="/douane-12.png" alt="Douanier Africain Professionnel" className="h-[110vh] w-auto object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.6)] scale-125 origin-bottom -mb-10" />
             </motion.div>
           </div>
         </section>
