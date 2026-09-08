@@ -78,28 +78,9 @@ class RegisterView(generics.CreateAPIView):
         if not email or not password:
             return Response({'error': 'L\'email et le mot de passe sont obligatoires.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Handle existing user seamlessly (prevent 400 Bad Request error)
         user = User.objects.filter(email__iexact=email).first()
         if user:
-            user.set_password(password)
-            if request.data.get('first_name'):
-                user.first_name = request.data.get('first_name')
-            if request.data.get('last_name'):
-                user.last_name = request.data.get('last_name')
-            if request.data.get('phone_number'):
-                user.phone_number = request.data.get('phone_number')
-            user.save()
-
-            refresh = RefreshToken.for_user(user)
-            response = Response({
-                'user': {
-                    'id': str(user.id),
-                    'email': user.email,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                }
-            }, status=status.HTTP_200_OK)
-            return set_jwt_cookies(response, str(refresh.access_token), str(refresh))
+            return Response({'email': ['Cet email est déjà utilisé.']}, status=status.HTTP_400_BAD_REQUEST)
 
         # Standard new user creation
         serializer = self.get_serializer(data=request.data)
