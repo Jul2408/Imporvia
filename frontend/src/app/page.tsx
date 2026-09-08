@@ -1,6 +1,7 @@
 "use client"
 
-import { motion, useScroll, useTransform, Variants } from "framer-motion"
+import React from "react"
+import { motion, useScroll, useTransform, Variants, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { SiteHeader } from "@/components/layout/SiteHeader"
 import { SiteFooter } from "@/components/layout/SiteFooter"
@@ -74,6 +75,36 @@ const stats = [
   { value: "< 30s", label: "Temps de simulation" },
 ]
 
+function HeroSlideshow({ images }: { images: string[] }) {
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [images.length]);
+
+  return (
+    <div className="absolute inset-0 z-0 overflow-hidden bg-slate-900">
+      <AnimatePresence mode="popLayout">
+        <motion.img
+          key={currentIndex}
+          src={images[currentIndex]}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 0.5, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.5, ease: "easeInOut" }}
+          className="absolute inset-0 w-full h-full object-cover"
+          alt="Hero background"
+        />
+      </AnimatePresence>
+      <div className="absolute inset-0 bg-linear-to-r from-slate-950/90 via-slate-900/60 to-transparent z-10" />
+      <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay z-10" />
+    </div>
+  );
+}
+
 export default function ImporViaAccueil() {
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
@@ -93,33 +124,12 @@ export default function ImporViaAccueil() {
       <SiteHeader />
 
       <main>
-        {/* ===== HERO WITH INFINITE SCROLL BG ===== */}
+        {/* ===== HERO WITH SLIDESHOW BG ===== */}
         <section className="relative min-h-dvh flex items-center overflow-hidden bg-slate-900">
+          <HeroSlideshow images={bgImages} />
 
-          {/* Animated Background Columns - 100% visible, no white gradient blocking them */}
-          <div className="absolute inset-0 z-0 flex gap-4 p-4 opacity-50 -rotate-12 scale-[1.3] pointer-events-none">
-            <div className="flex-1 flex flex-col gap-4 animate-scroll-y">
-              {scrollImages1.map((src, i) => <img key={`col1-${i}`} src={src} alt="" className="w-full h-64 object-cover rounded-2xl shadow-lg transition-all duration-700" />)}
-            </div>
-            <div className="flex-1 flex flex-col gap-4 animate-scroll-y-fast pt-32">
-              {scrollImages3.map((src, i) => <img key={`col2-${i}`} src={src} alt="" className="w-full h-80 object-cover rounded-2xl shadow-lg transition-all duration-700" />)}
-            </div>
-            <div className="flex-1 hidden md:flex flex-col gap-4 animate-scroll-y pb-24">
-              {scrollImages1.map((src, i) => <img key={`col3-${i}`} src={src} alt="" className="w-full h-72 object-cover rounded-2xl shadow-lg transition-all duration-700" />)}
-            </div>
-            <div className="flex-1 hidden lg:flex flex-col gap-4 animate-scroll-y-fast">
-              {scrollImages3.map((src, i) => <img key={`col4-${i}`} src={src} alt="" className="w-full h-64 object-cover rounded-2xl shadow-lg transition-all duration-700" />)}
-            </div>
-          </div>
-
-          {/* Dark overlay to make white text pop. The user wanted the background clearly visible. 
-              We use a slight dark gradient from left to ensure text is perfectly readable. */}
-          <div className="absolute inset-0 z-0 bg-linear-to-r from-slate-950/90 via-slate-900/60 to-transparent" />
-          <div className="absolute inset-0 z-0 bg-blue-900/10 mix-blend-overlay" />
-
-          <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 lg:py-32 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-
-            {/* Left: Text - Completely transparent, no white box, text is white for contrast */}
+          <div className="relative z-20 max-w-7xl mx-auto px-6 py-24 lg:py-32 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left: Text */}
             <motion.div
               initial="hidden"
               animate="visible"
@@ -178,101 +188,14 @@ export default function ImporViaAccueil() {
               </motion.div>
             </motion.div>
 
-            {/* Right: UI Preview Card */}
+            {/* Right: Customs Officer Image instead of the card */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, x: 30 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-5 relative hidden lg:block"
+              className="lg:col-span-5 relative hidden lg:flex justify-center items-end h-full"
             >
-              <div className="bg-white rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden border border-slate-200 relative z-10 transform-gpu">
-                {/* Card header */}
-                <div className="bg-slate-50/80 px-6 py-4 flex items-center justify-between border-b border-slate-200">
-                  <div className="flex items-center gap-3">
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-400" />
-                      <div className="w-3 h-3 rounded-full bg-amber-400" />
-                      <div className="w-3 h-3 rounded-full bg-emerald-400" />
-                    </div>
-                    <span className="text-slate-500 text-sm font-mono tracking-wider font-semibold">DOSSIER-4892</span>
-                  </div>
-                  <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3" />
-                    VALIDE
-                  </span>
-                </div>
-
-                <div className="p-6 space-y-6">
-                  {/* Image inside card */}
-                  <div className="w-full h-32 rounded-xl overflow-hidden relative">
-                    <img src="/service-transport-maritime.UVTB1Yc1_Z1jcI7d.webp" className="w-full h-full object-cover" alt="Port maritime" />
-                    <div className="absolute inset-0 bg-linear-to-t from-slate-900/80 to-transparent" />
-                    <div className="absolute bottom-3 left-4">
-                      <p className="text-white font-bold text-sm">Marchandise : Électronique</p>
-                      <p className="text-slate-300 text-xs">Origine: Shanghai → Douala</p>
-                    </div>
-                  </div>
-
-                  {/* KPI Row */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 transition-all hover:bg-slate-100">
-                      <p className="text-xs text-slate-500 font-bold mb-1 uppercase tracking-wider">Valeur CAF</p>
-                      <p className="text-xl font-bold text-slate-900">25 000 000</p>
-                      <p className="text-xs text-slate-400 font-mono">FCFA</p>
-                    </div>
-                    <div className="bg-blue-50 rounded-xl p-4 border border-blue-200 relative overflow-hidden transition-all hover:bg-blue-100">
-                      <div className="absolute top-0 right-0 w-16 h-16 bg-blue-100 rounded-bl-full blur-xl" />
-                      <p className="text-xs text-blue-700 font-bold mb-1 uppercase tracking-wider">Taxes & Droits</p>
-                      <p className="text-xl font-bold text-blue-800">4 250 000</p>
-                      <p className="text-xs text-blue-600 font-mono">FCFA</p>
-                    </div>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div className="space-y-4">
-                    <p className="text-sm font-semibold text-slate-700 flex justify-between">
-                      <span>Détail des lignes</span>
-                      <span className="text-blue-600">Calcul en temps réel</span>
-                    </p>
-                    <div className="space-y-3">
-                      {[
-                        { label: "Droits de Douane", value: 60, color: "bg-blue-500" },
-                        { label: "TVA", value: 30, color: "bg-indigo-400" },
-                        { label: "Redevances", value: 10, color: "bg-slate-400" },
-                      ].map((item, idx) => (
-                        <div key={item.label} className="flex items-center gap-3">
-                          <span className="text-xs text-slate-600 font-medium w-32 shrink-0">{item.label}</span>
-                          <div className="flex-1 bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${item.value}%` }}
-                              transition={{ duration: 1.5, delay: 1 + (idx * 0.2), ease: "easeOut" }}
-                              className={`${item.color} h-full rounded-full`}
-                            />
-                          </div>
-                          <span className="text-xs font-bold text-slate-700 w-8 text-right">{item.value}%</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ delay: 1.8, duration: 0.5 }}
-                className="absolute -bottom-6 -right-6 bg-slate-900 rounded-xl shadow-2xl border border-slate-700 px-6 py-4 flex items-center gap-4 z-20 hover:scale-105 transition-transform cursor-default"
-              >
-                <div className="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-emerald-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 font-medium">Économies garanties</p>
-                  <p className="text-base font-bold text-white">-18% de frais annexes</p>
-                </div>
-              </motion.div>
+              <img src="/douanier.png" alt="Douanier Africain Professionnel" className="max-h-[85vh] w-auto object-contain drop-shadow-2xl brightness-110 contrast-125" style={{ mixBlendMode: 'plus-lighter' }} />
             </motion.div>
           </div>
         </section>

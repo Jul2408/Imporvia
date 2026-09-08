@@ -12,7 +12,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: "cover",
-  themeColor: "#2563eb",
+  themeColor: "#ffffff",
 };
 
 export const metadata: Metadata = {
@@ -50,10 +50,10 @@ export default function RootLayout({
       <head>
         {/* PWA + Mobile */}
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#2563eb" />
+        <meta name="theme-color" content="#ffffff" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="ImporVia" />
         <link rel="apple-touch-icon" href="/favicon.png" />
         <link rel="apple-touch-icon" sizes="512x512" href="/favicon.png" />
